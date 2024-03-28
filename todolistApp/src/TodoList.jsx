@@ -13,6 +13,7 @@ class TodoList extends Component {
                         editTodo={this.props.editTodo}
                         deleteTodo={this.props.deleteTodo}
                         toggleSelect={this.props.toggleSelect}
+                        setDate={this.props.setDate}
                     />
                 ))}
             </ul>

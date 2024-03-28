@@ -1,17 +1,25 @@
 import React, { Component } from 'react';
 import TodoList from './TodoList';
-import AddTask from "./AddTask.jsx";
 
 class App extends Component {
   state = {
-    todos: [
-    ],
+    todos: [],
+    newTodoTitle: '',
   };
+
+  componentDidMount() {
+    const todos = JSON.parse(localStorage.getItem('todos')) || [];
+    this.setState({ todos });
+  }
+
+  componentDidUpdate() {
+    localStorage.setItem('todos', JSON.stringify(this.state.todos));
+  }
 
   toggleCompleted = (id) => {
     const updatedTodos = this.state.todos.map(todo => {
       if (todo.id === id) {
-        todo.completed = !todo.completed;
+        return { ...todo, completed: !todo.completed };
       }
       return todo;
     });
@@ -21,16 +29,21 @@ class App extends Component {
   setDate = (id, date) => {
     const updatedTodos = this.state.todos.map(todo => {
       if (todo.id === id) {
-        todo.dueDate = date;
+        return { ...todo, dueDate: date };
       }
       return todo;
     });
     this.setState({ todos: updatedTodos });
   };
 
-  editTodo = (id) => {
-    console.log('Editing todo with id:', id);
-    // Logique d'édition à implémenter
+  editTodo = (id, newTitle) => {
+    const updatedTodos = this.state.todos.map(todo => {
+      if (todo.id === id) {
+        return { ...todo, title: newTitle };
+      }
+      return todo;
+    });
+    this.setState({ todos: updatedTodos });
   };
 
   deleteTodo = (id) => {
@@ -42,7 +55,7 @@ class App extends Component {
   toggleSelect = (id) => {
     const updatedTodos = this.state.todos.map(todo => {
       if (todo.id === id) {
-        todo.isSelected = !todo.isSelected;
+        return { ...todo, isSelected: !todo.isSelected };
       }
       return todo;
     });
@@ -56,18 +69,18 @@ class App extends Component {
   };
 
   addTodo = (event) => {
-    event.preventDefault(); // Empêche le formulaire de recharger la page
+    event.preventDefault();
     const newTodo = {
-      id: Date.now(), // Un identifiant unique pour chaque tâche
+      id: Date.now(),
       title: this.state.newTodoTitle,
       completed: false,
       isSelected: false,
     };
     if (newTodo.title.trim()) {
-      this.setState({
-        todos: [...this.state.todos, newTodo],
-        newTodoTitle: '', // Réinitialiser le champ après l'ajout
-      });
+      this.setState(prevState => ({
+        todos: [...prevState.todos, newTodo],
+        newTodoTitle: '',
+      }));
     }
   };
 
@@ -79,8 +92,8 @@ class App extends Component {
     const anySelected = this.state.todos.some(todo => todo.isSelected);
 
     return (
-        <div><p>date:</p>
-          <h1>Ma Liste de Tâches</h1>
+        <div>
+          <h1>TodoList</h1>
           <form onSubmit={this.addTodo}>
             <input
                 type="text"
@@ -97,6 +110,7 @@ class App extends Component {
               editTodo={this.editTodo}
               deleteTodo={this.deleteTodo}
               toggleSelect={this.toggleSelect}
+              setDate={this.setDate}
           />
           {anySelected && (
               <button onClick={this.deleteSelectedTodos} style={{ marginTop: '20px' }}>
